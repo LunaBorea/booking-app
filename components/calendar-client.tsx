@@ -3,16 +3,23 @@
 import { useEffect, useState } from "react"
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "./ui/button"
+import { Booking, Resource } from "@/lib/generated/prisma/client"
 
 export default function CalendarClient() {
   const [date, setDate] = useState<Date | undefined>(new Date())
-  const [resource, setResource] = useState([])
+  const [resource, setResource] = useState<Resource[]>([])
   const [selectedResource, setSelected] = useState("")
+  const [booking, setBooking] = useState<Booking[]>([])
 
   const FetchData = async()=>{
     const res = await fetch("/api/resource")
     const data = await res.json()
     setResource(data)
+  }
+  const FetchBooking = async()=>{
+    const res = await fetch("/api/booking")
+    const data = await res.json()
+    setBooking(data)
   }
   const HandleResource = async(id:string)=>{
     setSelected(id)
@@ -22,7 +29,7 @@ export default function CalendarClient() {
     const data = await res.json()
   }
 
-  useEffect(()=>{FetchData()}, [])
+  useEffect(()=>{FetchData(); FetchBooking()}, [])
 
   return (
     <div>
@@ -38,6 +45,12 @@ export default function CalendarClient() {
             </div>
         ))}
         <Button onClick={HandleBooking} className="cursor-pointer">Book</Button>
+        {booking.map(b=>(
+            <div>
+                <h1>{new Date(b.date).toLocaleDateString()}</h1>
+                <h2>{b.resourceId}</h2>
+            </div>
+        ))}
     </div>
   )
 }

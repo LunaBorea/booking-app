@@ -17,4 +17,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET(req: Request) {
+    const session = await auth.api.getSession({ headers: await headers() })
+    if (!session) return Response.json({msg:"unauthorized access"})
+    const bookings = await prisma.booking.findMany({where: {userId: session.user.id}})
+    return Response.json(bookings)
 }
